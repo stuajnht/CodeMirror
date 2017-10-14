@@ -60,10 +60,12 @@
     var nextLine = cm.getLine(pos.line + (lookAhead + 1)), match = listRE.exec(nextLine);
     if (match) {
       console.log("line found to replace");
-      var replaceLine = nextLine.replace(listRE, (parseInt(match[3], 10) + 1) + match[4]);
+      var replaceLine = nextLine.replace(listRE, (parseInt(match[3], 10) + 1) + match[4] + match[5]);
       console.log("replacing:" + nextLine + " => " + replaceLine);
       cm.replaceRange(replaceLine, {
         line: (pos.line + (lookAhead + 1)), ch: 0
+      }, {
+        line: (pos.line + (lookAhead + 1)), ch: pos.ch + 1
       });
       updateFollowingMarkdownListNumbers(cm, pos, lookAhead + 1);
       return;
