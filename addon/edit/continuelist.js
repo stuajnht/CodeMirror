@@ -41,7 +41,7 @@
         var indent = match[1], after = match[5];
         var bullet = unorderedListRE.test(match[2]) || match[2].indexOf(">") >= 0
           ? match[2].replace("x", " ")
-          : (parseInt(match[3], 10) + 1) + match[4];
+          : updateFollowingMarkdownListNumbers(match, eolState, inList);
 
         replacements[i] = "\n" + indent + bullet + after;
       }
@@ -49,4 +49,8 @@
 
     cm.replaceSelections(replacements);
   };
+
+  function updateFollowingMarkdownListNumbers(match, eolState, inList) {
+    return (parseInt(match[3], 10) + 1) + match[4];
+  }
 });
