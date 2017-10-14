@@ -65,7 +65,7 @@
       cm.replaceRange(replaceLine, {
         line: (pos.line + (lookAhead + 1)), ch: 0
       }, {
-        line: (pos.line + (lookAhead + 1)), ch: pos.ch + 1
+        line: (pos.line + (lookAhead + 1)), ch: nextLine.length
       });
       updateFollowingMarkdownListNumbers(cm, pos, lookAhead + 1);
       return;
