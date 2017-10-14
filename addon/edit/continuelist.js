@@ -41,16 +41,29 @@
         var indent = match[1], after = match[5];
         var bullet = unorderedListRE.test(match[2]) || match[2].indexOf(">") >= 0
           ? match[2].replace("x", " ")
-          : updateFollowingMarkdownListNumbers(match, eolState, inList);
+          : (parseInt(match[3], 10) + 1) + match[4];
 
         replacements[i] = "\n" + indent + bullet + after;
+
+        updateFollowingMarkdownListNumbers(cm, pos);
       }
     }
 
     cm.replaceSelections(replacements);
   };
 
-  function updateFollowingMarkdownListNumbers(match, eolState, inList) {
-    return (parseInt(match[3], 10) + 1) + match[4];
+  function updateFollowingMarkdownListNumbers(cm, pos, lookAhead = 0) {
+    // See what line + 1 starts with
+    //   if not in list, return current number + 1 and return
+    // else
+    //   call this function again
+    var nextLine = cm.getLine(pos.line + (lookAhead + 1)), match = listRE.exec(nextLine);
+    if (match) {
+      console.log("line found to replace");
+      updateFollowingMarkdownListNumbers(cm, pos, lookAhead + 1);
+      return;
+    }
+
+    console.log("line does not need replacing");
   }
 });
