@@ -45,37 +45,36 @@
 
         replacements[i] = "\n" + indent + bullet + after;
 
-        updateFollowingMarkdownListNumbers(cm, pos);
+        incrementRemainingMarkdownListNumbers(cm, pos);
       }
     }
 
     cm.replaceSelections(replacements);
   };
 
-  function updateFollowingMarkdownListNumbers(cm, pos, lookAhead = 0) {
-    // See what line + 1 starts with
-    //   if not in list, return current number + 1 and return
-    // else
-    //   call this function again
-    var nextLine = cm.getLine(pos.line + (lookAhead + 1)), match = listRE.exec(nextLine);
-    if (match) {
-      var startNumber = listRE.exec(cm.getLine(pos.line));
-      console.log("line found to replace");
-      if (((parseInt(startNumber[3], 10) + (lookAhead + 1)) === (parseInt(match[3], 10))) &&
-          (startNumber[1] === match[1])) {
-        console.log("next line number is the next sequential number and correct indentation")
-        var replaceLine = nextLine.replace(listRE, match[1] + (parseInt(match[3], 10) + 1) + match[4] + match[5]);
-        console.log("replacing:" + nextLine + " => " + replaceLine);
+  function incrementRemainingMarkdownListNumbers(cm, pos, lookAhead = 1) {
+    var nextLineNumber = pos.line + lookAhead;
+    var nextLine = cm.getLine(nextLineNumber), nextItem = listRE.exec(nextLine);
+
+    if (nextItem) {
+      var startItem = listRE.exec(cm.getLine(pos.line));
+      var startIndent = startItem[1], nextIndent = nextItem[1];
+
+      var newNumber = (parseInt(startItem[3], 10) + lookAhead);
+      var nextNumber = (parseInt(nextItem[3], 10));
+
+      if ((newNumber === nextNumber) && (startIndent === nextIndent)) {
+        var replaceLine = nextLine.replace(
+          listRE, nextIndent + (nextNumber + 1) + nextItem[4] + nextItem[5]
+        );
         cm.replaceRange(replaceLine, {
-          line: (pos.line + (lookAhead + 1)), ch: 0
+          line: nextLineNumber, ch: 0
         }, {
-          line: (pos.line + (lookAhead + 1)), ch: nextLine.length
+          line: nextLineNumber, ch: nextLine.length
         });
-        updateFollowingMarkdownListNumbers(cm, pos, lookAhead + 1);
+        incrementRemainingMarkdownListNumbers(cm, pos, lookAhead + 1);
         return;
       }
     }
-
-    console.log("line does not need replacing");
   }
 });
