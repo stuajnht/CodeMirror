@@ -59,16 +59,20 @@
     //   call this function again
     var nextLine = cm.getLine(pos.line + (lookAhead + 1)), match = listRE.exec(nextLine);
     if (match) {
+      var startNumber = listRE.exec(cm.getLine(pos.line));
       console.log("line found to replace");
-      var replaceLine = nextLine.replace(listRE, match[1] + (parseInt(match[3], 10) + 1) + match[4] + match[5]);
-      console.log("replacing:" + nextLine + " => " + replaceLine);
-      cm.replaceRange(replaceLine, {
-        line: (pos.line + (lookAhead + 1)), ch: 0
-      }, {
-        line: (pos.line + (lookAhead + 1)), ch: nextLine.length
-      });
-      updateFollowingMarkdownListNumbers(cm, pos, lookAhead + 1);
-      return;
+      if ((parseInt(startNumber[3], 10) + (lookAhead + 1)) === (parseInt(match[3], 10))) {
+        console.log("next line number is the next sequential number")
+        var replaceLine = nextLine.replace(listRE, match[1] + (parseInt(match[3], 10) + 1) + match[4] + match[5]);
+        console.log("replacing:" + nextLine + " => " + replaceLine);
+        cm.replaceRange(replaceLine, {
+          line: (pos.line + (lookAhead + 1)), ch: 0
+        }, {
+          line: (pos.line + (lookAhead + 1)), ch: nextLine.length
+        });
+        updateFollowingMarkdownListNumbers(cm, pos, lookAhead + 1);
+        return;
+      }
     }
 
     console.log("line does not need replacing");
