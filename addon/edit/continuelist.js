@@ -61,8 +61,9 @@
     if (match) {
       var startNumber = listRE.exec(cm.getLine(pos.line));
       console.log("line found to replace");
-      if ((parseInt(startNumber[3], 10) + (lookAhead + 1)) === (parseInt(match[3], 10))) {
-        console.log("next line number is the next sequential number")
+      if (((parseInt(startNumber[3], 10) + (lookAhead + 1)) === (parseInt(match[3], 10))) &&
+          (startNumber[1] === match[1])) {
+        console.log("next line number is the next sequential number and correct indentation")
         var replaceLine = nextLine.replace(listRE, match[1] + (parseInt(match[3], 10) + 1) + match[4] + match[5]);
         console.log("replacing:" + nextLine + " => " + replaceLine);
         cm.replaceRange(replaceLine, {
