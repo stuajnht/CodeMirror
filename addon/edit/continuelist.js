@@ -63,27 +63,23 @@
       var newNumber = (parseInt(startItem[3], 10) + lookAhead);
       var nextNumber = (parseInt(nextItem[3], 10));
 
-      var increaseNumber = false;
+      var replaceLine = '', increaseNumber = false;
 
       // 'Standard' incrementing
       if ((newNumber === nextNumber) && (startIndent === nextIndent) && !increaseNumber) {
-        var replaceLine = nextLine.replace(
-          listRE, nextIndent + (nextNumber + 1) + nextItem[4] + nextItem[5]
-        );
+        replaceLine = nextIndent + (nextNumber + 1) + nextItem[4] + nextItem[5];
         increaseNumber = true;
       }
 
       // Remaining list numbers, which are numerically below current number
       // i.e. Broken list numbers: 1. [enter] 2. 3. 2. 4. 5. => 1. 2. 3. 4. 5. 6. 7.
       if ((newNumber >= nextNumber) && (startIndent === nextIndent) && !increaseNumber) {
-        var replaceLine = nextLine.replace(
-          listRE, nextIndent + (newNumber + 1) + nextItem[4] + nextItem[5]
-        );
+        replaceLine = nextIndent + (newNumber + 1) + nextItem[4] + nextItem[5];
         increaseNumber = true;
       }
 
       if (increaseNumber) {
-        cm.replaceRange(replaceLine, {
+        cm.replaceRange(nextLine.replace(listRE, replaceLine), {
           line: nextLineNumber, ch: 0
         }, {
           line: nextLineNumber, ch: nextLine.length
