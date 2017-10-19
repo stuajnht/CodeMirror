@@ -52,9 +52,11 @@
     cm.replaceSelections(replacements);
   };
 
-  // Auto-updating Markdown list numbers when a new item is added
-  // to the middle of a list
-  function incrementRemainingMarkdownListNumbers(cm, pos, lookAhead = 1, skipCount = 0) {
+  // Auto-updating Markdown list numbers when a new item is added to the
+  // middle of a list
+  function incrementRemainingMarkdownListNumbers(cm, pos, lookAhead, skipCount) {
+    if (lookAhead === 'undefined') 1;
+    if (skipCount === 'undefined') 0;
     var nextLineNumber = pos.line + lookAhead;
     var nextLine = cm.getLine(nextLineNumber), nextItem = listRE.exec(nextLine);
 
