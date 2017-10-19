@@ -52,6 +52,8 @@
     cm.replaceSelections(replacements);
   };
 
+  // Auto-updating Markdown list numbers when a new item is added
+  // to the middle of a list
   function incrementRemainingMarkdownListNumbers(cm, pos, lookAhead = 1, skipCount = 0) {
     var nextLineNumber = pos.line + lookAhead;
     var nextLine = cm.getLine(nextLineNumber), nextItem = listRE.exec(nextLine);
@@ -59,13 +61,11 @@
     if (nextItem) {
       var startItem = listRE.exec(cm.getLine(pos.line));
       var startIndent = startItem[1], nextIndent = nextItem[1];
-
       var newNumber = (parseInt(startItem[3], 10) + lookAhead - skipCount);
       var nextNumber = (parseInt(nextItem[3], 10));
-
       var replaceLine = '', increaseNumber = false;
 
-      // 'Standard' incrementing
+      // 'Standard' incrementing, when new items are added to the middle of list
       if ((newNumber === nextNumber) && (startIndent === nextIndent) && !increaseNumber) {
         replaceLine = nextIndent + (nextNumber + 1) + nextItem[4] + nextItem[5];
         increaseNumber = true;
@@ -78,7 +78,7 @@
         increaseNumber = true;
       }
 
-      // Incrementing numbers below indented list
+      // Incrementing numbers after indented list items
       // Note: This stops when the indentation level decreases
       // Note: This doesn't run if the next line immediatley indents, as it is
       //       not clear of the users intention (new indented item or same level)
@@ -95,7 +95,6 @@
           line: nextLineNumber, ch: nextLine.length
         });
         incrementRemainingMarkdownListNumbers(cm, pos, lookAhead + 1, skipCount);
-        return;
       }
     }
   }
