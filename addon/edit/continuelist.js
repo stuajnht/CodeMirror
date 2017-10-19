@@ -78,6 +78,11 @@
         increaseNumber = true;
       }
 
+      // Incrementing numbers below indented list
+      if ((startIndent === nextIndent) && !increaseNumber) {
+        incrementRemainingMarkdownListNumbers(cm, pos, lookAhead + 1);
+      }
+
       if (increaseNumber) {
         cm.replaceRange(nextLine.replace(listRE, replaceLine), {
           line: nextLineNumber, ch: 0
