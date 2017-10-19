@@ -52,7 +52,7 @@
     cm.replaceSelections(replacements);
   };
 
-  function incrementRemainingMarkdownListNumbers(cm, pos, lookAhead = 1) {
+  function incrementRemainingMarkdownListNumbers(cm, pos, lookAhead = 1, skipCount = 0) {
     var nextLineNumber = pos.line + lookAhead;
     var nextLine = cm.getLine(nextLineNumber), nextItem = listRE.exec(nextLine);
 
@@ -60,7 +60,7 @@
       var startItem = listRE.exec(cm.getLine(pos.line));
       var startIndent = startItem[1], nextIndent = nextItem[1];
 
-      var newNumber = (parseInt(startItem[3], 10) + lookAhead);
+      var newNumber = (parseInt(startItem[3], 10) + lookAhead - skipCount);
       var nextNumber = (parseInt(nextItem[3], 10));
 
       var replaceLine = '', increaseNumber = false;
@@ -79,8 +79,8 @@
       }
 
       // Incrementing numbers below indented list
-      if ((startIndent === nextIndent) && !increaseNumber) {
-        incrementRemainingMarkdownListNumbers(cm, pos, lookAhead + 1);
+      if ((startIndent != nextIndent) && !increaseNumber) {
+        incrementRemainingMarkdownListNumbers(cm, pos, lookAhead + 1, skipCount + 1);
       }
 
       if (increaseNumber) {
@@ -89,7 +89,7 @@
         }, {
           line: nextLineNumber, ch: nextLine.length
         });
-        incrementRemainingMarkdownListNumbers(cm, pos, lookAhead + 1);
+        incrementRemainingMarkdownListNumbers(cm, pos, lookAhead + 1, skipCount);
         return;
       }
     }
