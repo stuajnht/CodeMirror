@@ -79,7 +79,9 @@
       }
 
       // Incrementing numbers below indented list
+      // Note: This stops when the indentation level decreases
       if ((startIndent != nextIndent) && !increaseNumber) {
+        if (startIndent.length > nextIndent.length) return;
         incrementRemainingMarkdownListNumbers(cm, pos, lookAhead + 1, skipCount + 1);
       }
 
