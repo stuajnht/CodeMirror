@@ -54,17 +54,17 @@
 
   // Auto-updating Markdown list numbers when a new item is added to the
   // middle of a list
-  function incrementRemainingMarkdownListNumbers(cm, pos, lookAhead, skipCount) {
-    if (lookAhead === undefined) lookAhead = 1;
-    if (skipCount === undefined) skipCount = 0;
+  function incrementRemainingMarkdownListNumbers(cm, pos) {
+    var startLine = pos.line, lookAhead = 0, skipCount = 0;
+    var startItem = listRE.exec(cm.getLine(startLine)), startIndent = startItem[1];
 
     do {
-      var nextLineNumber = pos.line + lookAhead;
+      lookAhead += 1;
+      var nextLineNumber = startLine + lookAhead;
       var nextLine = cm.getLine(nextLineNumber), nextItem = listRE.exec(nextLine);
 
       if (nextItem) {
-        var startItem = listRE.exec(cm.getLine(pos.line));
-        var startIndent = startItem[1], nextIndent = nextItem[1];
+        var nextIndent = nextItem[1];
         var newNumber = (parseInt(startItem[3], 10) + lookAhead - skipCount);
         var nextNumber = (parseInt(nextItem[3], 10)), itemNumber = nextNumber;
 
@@ -85,8 +85,6 @@
           if ((startIndent.length < nextIndent.length) && (lookAhead === 1)) return;
           skipCount += 1;
         }
-
-        lookAhead += 1;
       }
     } while (nextItem);
   }
