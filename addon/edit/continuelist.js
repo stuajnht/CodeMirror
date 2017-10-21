@@ -57,33 +57,37 @@
   function incrementRemainingMarkdownListNumbers(cm, pos, lookAhead, skipCount) {
     if (lookAhead === undefined) lookAhead = 1;
     if (skipCount === undefined) skipCount = 0;
-    var nextLineNumber = pos.line + lookAhead;
-    var nextLine = cm.getLine(nextLineNumber), nextItem = listRE.exec(nextLine);
 
-    if (nextItem) {
-      var startItem = listRE.exec(cm.getLine(pos.line));
-      var startIndent = startItem[1], nextIndent = nextItem[1];
-      var newNumber = (parseInt(startItem[3], 10) + lookAhead - skipCount);
-      var nextNumber = (parseInt(nextItem[3], 10)), itemNumber = nextNumber;
+    do {
+      var nextLineNumber = pos.line + lookAhead;
+      var nextLine = cm.getLine(nextLineNumber), nextItem = listRE.exec(nextLine);
 
-      if (startIndent === nextIndent) {
-        if (newNumber === nextNumber) itemNumber = nextNumber + 1;
-        if (newNumber > nextNumber) itemNumber = newNumber + 1;
-        cm.replaceRange(
-          nextLine.replace(listRE, nextIndent + itemNumber + nextItem[4] + nextItem[5]),
-        {
-          line: nextLineNumber, ch: 0
-        }, {
-          line: nextLineNumber, ch: nextLine.length
-        });
-        incrementRemainingMarkdownListNumbers(cm, pos, lookAhead + 1, skipCount);
-      } else {
-        // This doesn't run if the next line immediatley indents, as it is
-        // not clear of the users intention (new indented item or same level)
-        if (startIndent.length > nextIndent.length) return;
-        if ((startIndent.length < nextIndent.length) && (lookAhead === 1)) return;
-        incrementRemainingMarkdownListNumbers(cm, pos, lookAhead + 1, skipCount + 1);
+      if (nextItem) {
+        var startItem = listRE.exec(cm.getLine(pos.line));
+        var startIndent = startItem[1], nextIndent = nextItem[1];
+        var newNumber = (parseInt(startItem[3], 10) + lookAhead - skipCount);
+        var nextNumber = (parseInt(nextItem[3], 10)), itemNumber = nextNumber;
+
+        if (startIndent === nextIndent) {
+          if (newNumber === nextNumber) itemNumber = nextNumber + 1;
+          if (newNumber > nextNumber) itemNumber = newNumber + 1;
+          cm.replaceRange(
+            nextLine.replace(listRE, nextIndent + itemNumber + nextItem[4] + nextItem[5]),
+          {
+            line: nextLineNumber, ch: 0
+          }, {
+            line: nextLineNumber, ch: nextLine.length
+          });
+        } else {
+          // This doesn't run if the next line immediatley indents, as it is
+          // not clear of the users intention (new indented item or same level)
+          if (startIndent.length > nextIndent.length) return;
+          if ((startIndent.length < nextIndent.length) && (lookAhead === 1)) return;
+          skipCount += 1;
+        }
+
+        lookAhead += 1;
       }
-    }
+    } while (nextItem);
   }
 });
