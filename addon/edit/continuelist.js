@@ -68,7 +68,7 @@
 
       if (startIndent === nextIndent) {
         if (newNumber === nextNumber) itemNumber = nextNumber + 1;
-        if (newNumber >= nextNumber) itemNumber = newNumber + 1;
+        if (newNumber > nextNumber) itemNumber = newNumber + 1;
         cm.replaceRange(
           nextLine.replace(listRE, nextIndent + itemNumber + nextItem[4] + nextItem[5]),
         {
