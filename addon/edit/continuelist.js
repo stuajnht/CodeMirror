@@ -64,41 +64,25 @@
       var startItem = listRE.exec(cm.getLine(pos.line));
       var startIndent = startItem[1], nextIndent = nextItem[1];
       var newNumber = (parseInt(startItem[3], 10) + lookAhead - skipCount);
-      var nextNumber = (parseInt(nextItem[3], 10));
-      var replaceNumber = 0, increaseNumber = false;
+      var nextNumber = (parseInt(nextItem[3], 10)), itemNumber = nextNumber;
 
-      // 'Standard' incrementing, when new items are added to the middle of list
-      if ((newNumber === nextNumber) && (startIndent === nextIndent) && !increaseNumber) {
-        replaceNumber = nextNumber + 1;
-        increaseNumber = true;
-      }
-
-      // Remaining list numbers, which are numerically below current number
-      // i.e. Broken list numbers: 1. [enter] 2. 3. 2. 4. 5. => 1. 2. 3. 4. 5. 6. 7.
-      if ((newNumber >= nextNumber) && (startIndent === nextIndent) && !increaseNumber) {
-        replaceNumber = newNumber + 1;
-        increaseNumber = true;
-      }
-
-      // Incrementing numbers after indented list items
-      // Note: This stops when the indentation level decreases
-      // Note: This doesn't run if the next line immediatley indents, as it is
-      //       not clear of the users intention (new indented item or same level)
-      if ((startIndent != nextIndent) && !increaseNumber) {
-        if (startIndent.length > nextIndent.length) return;
-        if ((startIndent.length < nextIndent.length) && (lookAhead === 1)) return;
-        incrementRemainingMarkdownListNumbers(cm, pos, lookAhead + 1, skipCount + 1);
-      }
-
-      if (increaseNumber) {
+      if (startIndent === nextIndent) {
+        if (newNumber === nextNumber) itemNumber = nextNumber + 1;
+        if (newNumber >= nextNumber) itemNumber = newNumber + 1;
         cm.replaceRange(
-          nextLine.replace(listRE, nextIndent + replaceNumber + nextItem[4] + nextItem[5]),
+          nextLine.replace(listRE, nextIndent + itemNumber + nextItem[4] + nextItem[5]),
         {
           line: nextLineNumber, ch: 0
         }, {
           line: nextLineNumber, ch: nextLine.length
         });
         incrementRemainingMarkdownListNumbers(cm, pos, lookAhead + 1, skipCount);
+      } else {
+        // This doesn't run if the next line immediatley indents, as it is
+        // not clear of the users intention (new indented item or same level)
+        if (startIndent.length > nextIndent.length) return;
+        if ((startIndent.length < nextIndent.length) && (lookAhead === 1)) return;
+        incrementRemainingMarkdownListNumbers(cm, pos, lookAhead + 1, skipCount + 1);
       }
     }
   }
